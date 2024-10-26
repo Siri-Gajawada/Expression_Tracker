@@ -1,0 +1,72 @@
+/* Full-screen container with a background image and centered login box */
+.outer-container {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative; /* For overlay purposes */
+  /* background-image: url('./img2.jpg'); Background image/ */
+  background-size: cover; /* Cover the full viewport */
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* No repeating */
+  opacity: 0.5; /* Make the image slightly visible */
+}
+
+/* Semi-transparent overlay to darken the background */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Dark semi-transparent overlay */
+  z-index: 1; /* Layer the overlay behind the login box */
+}
+
+/* Centered login box */
+.login-box {
+  background: rgba(255, 255, 255, 0.8); /* Semi-transparent login box */
+  width: 600px; /* Wider login box */
+  padding: 60px; /* More padding inside the box */
+  border-radius: 12px;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3); /* Add shadow */
+  z-index: 2; /* Ensure the login box is above the overlay */
+  text-align: center;
+  position: relative;
+}
+
+/* Input fields styling */
+.input-field {
+  margin-bottom: 30px;
+}
+
+label {
+  display: block;
+  margin-bottom: 12px;
+  font-size: 1.5rem; /* Larger font for labels */
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  font-size: 1.5rem;
+  border-radius: 5px;
+  border: 1px solid #665f5f;
+}
+
+/* Button styling */
+button {
+  width: 100%;
+  padding: 16px;
+  font-size: 1.5rem;
+  background-color: #538ecd;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
