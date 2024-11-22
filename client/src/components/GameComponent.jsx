@@ -1,3 +1,4 @@
+// src/components/GameComponent.jsx
 import React, { useState, useEffect } from 'react';
 import './GameComponent.css';
 import ImageCapture from './ImageCaptureComponent';

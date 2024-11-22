@@ -10,7 +10,7 @@ function LoginPage() {
   const handleLogin = (e) => {
     e.preventDefault(); // Prevent form submission
     if (username.startsWith("kid")) {
-      navigate("/game");
+      navigate("/start-game");
     } else if (username.startsWith("admin")) {
       navigate("/admin");
     } else {

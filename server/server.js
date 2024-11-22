@@ -185,7 +185,9 @@ async function analyzeImage(imagePath, retryCount = 0, maxRetries = 5) {
 
 // API to start a new session and generate session ID
 app.get("/start-session", async (req, res) => {
+
   currentSessionId = `session_${Date.now()}`;
+  console.log(currentSessionId);
   res.json({ sessionId: currentSessionId });
 });
 

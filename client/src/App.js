@@ -4,19 +4,22 @@ import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import GameComponent from "./components/GameComponent";
 import ImageCaptureComponent from "./components/ImageCaptureComponent";
-import LoginPage from "./components/LoginPage/LoginPage"; // Adjust path as necessary
-import AdminApp from "./components/AdminApp/AdminApp"; // Adjust path as necessary
+import LoginPage from "./components/LoginPage/LoginPage";
+import AdminApp from "./components/AdminApp/AdminApp";
+import StartGameButton from "./components/StartGameButton.jsx";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<LoginPage />} />
+        <Route path="/start-game" element={<StartGameButton />} />
         <Route
           path="/game"
           element={
             <>
-              <GameComponent /> <ImageCaptureComponent />
+              <GameComponent />
+              <ImageCaptureComponent />
             </>
           }
         />
@@ -25,4 +28,5 @@ function App() {
     </Router>
   );
 }
+
 export default App;
