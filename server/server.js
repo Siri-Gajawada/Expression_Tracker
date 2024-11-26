@@ -1,4 +1,3 @@
-// Required module imports
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
@@ -9,41 +8,99 @@ const FormData = require("form-data");
 const sharp = require("sharp");
 const cors = require("cors");
 
-// Initialize Express app
 const app = express();
 const port = 5000;
 
-// Enable CORS and JSON parsing
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static('uploads'));  // Serve static files in 'uploads' directory
+app.use("/uploads", express.static("uploads"));
 
-// MongoDB Connection
-mongoose.connect('mongodb+srv://leela:leeladhari@cluster0.aokrg.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log('Connected to MongoDB successfully');
-}).catch((err) => {
-  console.error('MongoDB connection error:', err);
+// User Profile Schema
+const userProfileSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  password: { type: String, required: true },
+  role: { type: String, required: true },
+  phone: { type: String, required: true },
+  sessions: [
+    {
+      sessionId: {
+        type: String,
+        required: true,
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now, // Automatically set the session  creation date
+      },
+    },
+  ],
 });
 
-// Define MongoDB schema for analysis
+const UserProfile = mongoose.model("UserProfile", userProfileSchema);
+
+// MongoDB Connection
+mongoose
+  .connect("mongodb+srv://user1:user1@dravya01.ioeeo.mongodb.net/?retryWrites=true&w=majority&appName=Dravya01", {})
+  .then(() => {
+    console.log("Connected to MongoDB successfully");
+    uploadDefaultProfiles();
+  })
+  .catch((err) => {
+    console.error("MongoDB connection error:", err);
+  });
+
+// Function to insert default profiles
+async function uploadDefaultProfiles() {
+  try {
+    const existingProfiles = await UserProfile.find();
+    console.log("Existing profiles found:", existingProfiles);
+
+    const profiles = [
+      {
+        name: "admin",
+        password: "admin123",
+        role: "admin",
+        phone: "1234567890",
+      },
+      { name: "user1", password: "user123", role: "kid", phone: "0987654321" },
+      { name: "user2", password: "user123", role: "kid", phone: "1122334455" },
+      { name: "user3", password: "user123", role: "kid", phone: "1122334455" },
+      { name: "vijju", password: "123", role: "kid", phone: "1122334455" },
+      { name: "siri", password: "123", role: "kid", phone: "1122334455" },
+    ];
+
+    for (const profile of profiles) {
+      const existingUser = await UserProfile.findOne({ name: profile.name });
+      if (!existingUser) {
+        const newProfile = new UserProfile(profile);
+        await newProfile.save();
+        console.log("Profile inserted:", profile);
+      } else {
+        console.log("Profile already exists, skipping:", profile.name);
+      }
+    }
+  } catch (error) {
+    console.error("Error uploading default profiles:", error);
+  }
+}
+
+// Analysis Schema
 const AnalysisSchema = new mongoose.Schema({
   sessionId: String,
-  imageAnalysis: [{
-    imagePath: String,
-    emotions: {
-      angry: Number,
-      disgust: Number,
-      fear: Number,
-      happy: Number,
-      sad: Number,
-      surprise: Number,
-      neutral: Number
+  imageAnalysis: [
+    {
+      imagePath: String,
+      emotions: {
+        angry: Number,
+        disgust: Number,
+        fear: Number,
+        happy: Number,
+        sad: Number,
+        surprise: Number,
+        neutral: Number,
+      },
+      dominantEmotion: String,
     },
-    dominantEmotion: String
-  }],
+  ],
   overallAnalysis: {
     emotions: {
       angry: Number,
@@ -52,38 +109,36 @@ const AnalysisSchema = new mongoose.Schema({
       happy: Number,
       sad: Number,
       surprise: Number,
-      neutral: Number
-    }
+      neutral: Number,
+    },
   },
   createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
-// Create Analysis model
-const Analysis = mongoose.model('Analysis', AnalysisSchema);
+const Analysis = mongoose.model("Analysis", AnalysisSchema);
 
-let currentSessionId = null;  // Holds current session ID
-
-// Multer configuration for file storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    if (!currentSessionId) {
+    const sessionId = req.query.currentSessionId;
+    console.log(sessionId);
+    if (!sessionId) {
       return cb(new Error("Session ID is missing."), null);
     }
-    // Set upload path based on file type and session ID
-    const sessionPath = file.fieldname === "webcam"
-      ? path.join(__dirname, "uploads", "webcam_images", currentSessionId)
-      : path.join(__dirname, "uploads", "screenshots", currentSessionId);
+    const sessionPath =
+      file.fieldname === "webcam"
+        ? path.join(__dirname, "uploads", "webcam_images", sessionId)
+        : path.join(__dirname, "uploads", "screenshots", sessionId);
     fs.mkdirSync(sessionPath, { recursive: true });
     cb(null, sessionPath);
   },
   filename: (req, file, cb) => {
     // Create filename with timestamp for uniqueness
     const now = new Date();
-    const dateString = now.toISOString().split('T')[0]; // YYYY-MM-DD
-    const timeString = now.toTimeString().split(' ')[0].split(':').join('-'); // HH-MM-SS
+    const dateString = now.toISOString().split("T")[0]; // YYYY-MM-DD
+    const timeString = now.toTimeString().split(" ")[0].split(":").join("-"); // HH-MM-SS
     const filename = `${dateString}_${timeString}.png`; // Format: YYYY-MM-DD_HH-MM-SS.png
     cb(null, filename);
   },
@@ -91,35 +146,31 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Helper function to delay execution
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+// Utility Functions
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-// Image analysis function with retry mechanism
 async function analyzeImage(imagePath, retryCount = 0, maxRetries = 5) {
   try {
-    // Read image as buffer
     const imageBuffer = await fs.promises.readFile(imagePath);
 
     if (!imageBuffer || imageBuffer.length === 0) {
       throw new Error("Image file is empty or unreadable.");
     }
 
-    // Send image to external model API for analysis
     const response = await axios.post(
       "https://api-inference.huggingface.co/models/motheecreator/vit-Facial-Expression-Recognition",
       imageBuffer,
       {
         headers: {
-          'Authorization': 'Bearer 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',
-          'Content-Type': 'application/json'
-        }
+          Authorization: "Bearer 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",
+          "Content-Type": "application/json",
+        },
       }
     );
 
-    // Retry if model is loading
     if (response.data.error?.includes("Model is loading")) {
       if (retryCount < maxRetries) {
-        const backoffTime = Math.min(1000 * Math.pow(2, retryCount), 10000); // Max 10 seconds
+        const backoffTime = Math.min(1000 * Math.pow(2, retryCount), 10000);
         await delay(backoffTime);
         return analyzeImage(imagePath, retryCount + 1, maxRetries);
       } else {
@@ -127,7 +178,6 @@ async function analyzeImage(imagePath, retryCount = 0, maxRetries = 5) {
       }
     }
 
-    // Calculate emotion percentages
     const emotions = {
       angry: 0,
       disgust: 0,
@@ -135,7 +185,7 @@ async function analyzeImage(imagePath, retryCount = 0, maxRetries = 5) {
       happy: 0,
       sad: 0,
       surprise: 0,
-      neutral: 0
+      neutral: 0,
     };
 
     let totalScore = 0;
@@ -147,27 +197,29 @@ async function analyzeImage(imagePath, retryCount = 0, maxRetries = 5) {
 
     response.data.forEach((result) => {
       if (result.label.toLowerCase() in emotions) {
-        emotions[result.label.toLowerCase()] = ((result.score / totalScore) * 100).toFixed(2);
+        emotions[result.label.toLowerCase()] = (result.score * 100).toFixed(2); // Convert score to percentage- 100%
       }
     });
 
-    // Determine dominant emotion
-    let dominantEmotion = Object.entries(emotions).reduce((max, [emotion, value]) =>
-      parseFloat(value) > parseFloat(max[1]) ? [emotion, value] : max,
-      ['neutral', '0']
+    let dominantEmotion = Object.entries(emotions).reduce(
+      (max, [emotion, value]) =>
+        parseFloat(value) > parseFloat(max[1]) ? [emotion, value] : max,
+      ["neutral", "0"]
     )[0];
 
     return { emotions, dominantEmotion };
-
   } catch (error) {
-    // Retry logic for failed analyses
     if (retryCount < maxRetries) {
-      const backoffTime = Math.min(1000 * Math.pow(2, retryCount), 10000); // Max 10 seconds
+      const backoffTime = Math.min(1000 * Math.pow(2, retryCount), 10000);
       await delay(backoffTime);
       return analyzeImage(imagePath, retryCount + 1, maxRetries);
     }
 
-    console.error("Error analyzing image:", path.basename(imagePath), error.message);
+    console.error(
+      "Error analyzing image:",
+      path.basename(imagePath),
+      error.message
+    );
     return {
       emotions: {
         angry: "0.00",
@@ -176,46 +228,135 @@ async function analyzeImage(imagePath, retryCount = 0, maxRetries = 5) {
         happy: "0.00",
         sad: "0.00",
         surprise: "0.00",
-        neutral: "100.00"
+        neutral: "100.00",
       },
-      dominantEmotion: 'neutral'
+      dominantEmotion: "neutral",
     };
   }
 }
 
-// API to start a new session and generate session ID
-app.get("/start-session", async (req, res) => {
+// Login route
+app.post("/login", async (req, res) => {
+  console.log("Login route hit");
+  const { name, password } = req.body;
+  console.log("Received login request with:", { name, password });
 
-  currentSessionId = `session_${Date.now()}`;
-  console.log(currentSessionId);
-  res.json({ sessionId: currentSessionId });
+  try {
+    const user = await UserProfile.findOne({ name, password });
+    console.log("User found:", user);
+
+    if (user) {
+      if (user.role === "admin") {
+        console.log("Redirecting to Admin Page for user:", name);
+        res.json({ message: "Redirect to Admin Page", redirectUrl: "/admin" });
+      } else if (user.role === "kid") {
+        console.log("Redirecting to Game Page for user:", name);
+        res.json({
+          message: "Redirect to Game Page",
+          redirectUrl: "/start-game",
+        });
+      }
+    } else {
+      console.log("Invalid username or password for user:", name);
+      res.status(401).json({ message: "Invalid username or password" });
+    }
+  } catch (error) {
+    console.error("Server error during login:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
 });
 
-// API to upload images (screenshots and webcam captures)
-app.post("/upload", upload.fields([{ name: "screenshot" }, { name: "webcam" }]), (req, res) => {
-  if (!currentSessionId) {
-    return res.status(400).json({ error: "Session ID is missing." });
+// Start session route
+app.get("/start-session", async (req, res) => {
+  console.log("Entered Server");
+
+  const currentSessionId = `session_${Date.now()}`;
+  console.log("Generated Session ID:", currentSessionId);
+
+  const username = req.query.username;
+  console.log("Received Username:", username);
+
+  if (!username) {
+    console.log("No username provided");
+    return res.status(400).json({ message: "Username is required" });
   }
 
-  const screenshotPaths = req.files['screenshot'].map(file => path.join(__dirname, "uploads", "screenshots", currentSessionId, file.filename));
-  console.log("Uploaded screenshot paths:", screenshotPaths);
+  try {
+    console.log("Checking if username exists in the database...");
 
-  res.json({ message: "Images uploaded successfully!" });
+    const userProfile = await UserProfile.findOne({ name: username });
+
+    if (!userProfile) {
+      console.log("User profile not found for username:", username);
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    console.log("User profile found:", userProfile);
+
+    if (userProfile.role === "kid") {
+      console.log("User is a kid; updating session IDs...");
+
+      await UserProfile.findOneAndUpdate(
+        { name: username },
+        {
+          $push: {
+            sessions: {
+              sessionId: currentSessionId,
+              createdAt: new Date(), // Add a timestamp for the session
+            },
+          },
+        },
+        { new: true, useFindAndModify: false }
+      );
+      console.log("Session ID added for user:", username);
+    } else {
+      console.log("User is admin; session ID not added.");
+    }
+
+    res.json({ sessionId: currentSessionId });
+  } catch (error) {
+    console.error("Error starting session:", error);
+    res
+      .status(500)
+      .json({ message: "Error starting session", error: error.message });
+  }
 });
 
-// API to get all available sessions
+app.post(
+  "/upload",
+  upload.fields([{ name: "screenshot" }, { name: "webcam" }]),
+  (req, res) => {
+    const sessionId = req.query.currentSessionId; // Get sessionId from query parameters
+    console.log("Upload route called. Session ID:", sessionId);
+
+    if (!sessionId) {
+      return res.status(400).json({ error: "Session ID is missing." });
+    }
+
+    // Update storage destination based on the session ID from request
+    const files = req.files;
+    if (!files) {
+      return res.status(400).json({ error: "No files uploaded." });
+    }
+
+    res.json({ message: "Images uploaded successfully!" });
+  }
+);
+
 app.get("/sessions", async (req, res) => {
   try {
-    // Retrieve sessions from MongoDB
-    const analyses = await Analysis.find({}, 'sessionId createdAt').sort({ createdAt: -1 });
-    const sessionsFromDB = analyses.map(analysis => analysis.sessionId);
+    const analyses = await Analysis.find({}, "sessionId createdAt").sort({
+      createdAt: -1,
+    });
 
-    // Get session directories on filesystem
+    const sessionsFromDB = analyses.map((analysis) => analysis.sessionId);
+
     const sessionsDir = path.join(__dirname, "uploads", "webcam_images");
     const filesystemSessions = await fs.promises.readdir(sessionsDir);
 
-    // Combine MongoDB and filesystem sessions, removing duplicates
-    const allSessions = [...new Set([...sessionsFromDB, ...filesystemSessions])];
+    const allSessions = [
+      ...new Set([...sessionsFromDB, ...filesystemSessions]),
+    ];
 
     res.json({ sessions: allSessions });
   } catch (error) {
@@ -224,25 +365,53 @@ app.get("/sessions", async (req, res) => {
   }
 });
 
-// API to analyze images in a session, or retrieve existing analysis from MongoDB
+app.get("/api/sessions", async (req, res) => {
+  try {
+    const sessions = await UserProfile.aggregate([
+      { $unwind: "$sessions" }, // Flatten the `sessions` array
+      {
+        $group: {
+          _id: "$name", // Group by username (name)
+          sessions: {
+            $push: {
+              sessionId: "$sessions.sessionId",
+              createdAt: "$sessions.createdAt",
+            },
+          },
+        },
+      },
+      { $project: { username: "$_id", _id: 0, sessions: 1 } }, // Restructure the output
+    ]);
+
+    res.json(sessions);
+  } catch (error) {
+    console.error("Error fetching sessions:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 app.get("/analyze/:sessionId", async (req, res) => {
   const { sessionId } = req.params;
 
   try {
-    // Check if analysis already exists in MongoDB
     const existingAnalysis = await Analysis.findOne({ sessionId });
 
     if (existingAnalysis) {
       console.log(`Found existing analysis for session ${sessionId}`);
       return res.json({
         imageAnalyses: existingAnalysis.imageAnalysis,
-        overallAnalysis: existingAnalysis.overallAnalysis
+        overallAnalysis: existingAnalysis.overallAnalysis,
       });
     }
 
-    // Process new images for analysis
-    const sessionDir = path.join(__dirname, "uploads", "webcam_images", sessionId);
+    const sessionDir = path.join(
+      __dirname,
+      "uploads",
+      "webcam_images",
+      sessionId
+    );
     const files = await fs.promises.readdir(sessionDir);
+
     const batchSize = 3;
     const imageAnalyses = [];
 
@@ -258,7 +427,6 @@ app.get("/analyze/:sessionId", async (req, res) => {
       imageAnalyses.push(...batchResults);
     }
 
-    // Calculate overall emotion analysis
     const totalEmotions = {
       angry: 0,
       disgust: 0,
@@ -266,32 +434,41 @@ app.get("/analyze/:sessionId", async (req, res) => {
       happy: 0,
       sad: 0,
       surprise: 0,
-      neutral: 0
+      neutral: 0,
     };
-    let totalImages = imageAnalyses.length;
 
     imageAnalyses.forEach(({ emotions }) => {
-      Object.entries(emotions).forEach(([emotion, value]) => {
-        totalEmotions[emotion] += parseFloat(value);
-      });
+      for (const emotion in emotions) {
+        totalEmotions[emotion] += parseFloat(emotions[emotion]);
+      }
     });
 
     const overallAnalysis = {
-      emotions: Object.fromEntries(Object.entries(totalEmotions).map(([emotion, value]) => [emotion, (value / totalImages).toFixed(2)]))
+      emotions: {},
     };
 
-    const newAnalysis = new Analysis({ sessionId, imageAnalysis: imageAnalyses, overallAnalysis });
-    await newAnalysis.save();
+    for (const emotion in totalEmotions) {
+      overallAnalysis.emotions[emotion] = (
+        totalEmotions[emotion] / imageAnalyses.length
+      ).toFixed(2);
+    }
+
+    const analysisDoc = new Analysis({
+      sessionId,
+      imageAnalysis: imageAnalyses,
+      overallAnalysis,
+    });
+    await analysisDoc.save();
+    console.log(`Saved new analysis for session ${sessionId}`);
 
     res.json({ imageAnalyses, overallAnalysis });
-
   } catch (error) {
-    console.error("Error analyzing images:", error);
+    console.error("Error during analysis:", error);
     res.status(500).json({ error: "Error analyzing images" });
   }
 });
 
 // Start server
 app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+  console.log(`Server is running on http://localhost:${port}`);
 });

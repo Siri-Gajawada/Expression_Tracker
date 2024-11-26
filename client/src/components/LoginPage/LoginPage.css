@@ -6,7 +6,7 @@
   justify-content: center;
   align-items: center;
   position: relative; /* For overlay purposes */
-  /* background-image: url('./img2.jpg'); Background image/ */
+  background-image: url('./img2.jpg'); /* Background image */
   background-size: cover; /* Cover the full viewport */
   background-position: center; /* Center the image */
   background-repeat: no-repeat; /* No repeating */
@@ -27,7 +27,7 @@
 /* Centered login box */
 .login-box {
   background: rgba(255, 255, 255, 0.8); /* Semi-transparent login box */
-  width: 600px; /* Wider login box */
+  width: 400px; /* Wider login box */
   padding: 60px; /* More padding inside the box */
   border-radius: 12px;
   box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.3); /* Add shadow */
@@ -69,4 +69,17 @@ button {
 
 button:hover {
   background-color: #0056b3;
+}
+
+
+.input-field label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.player-name {
+  margin-top: 15px;
+  font-weight: bold;
+  color: #333;
 }

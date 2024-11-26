@@ -4,15 +4,30 @@ import axios from "axios";
 
 const API_URL = "http://localhost:5000";
 
-export const uploadImages = async (screenshot, webcamImage) => {
+export const uploadImages = async (screenshot, webcamImage, sessionId) => {
   try {
+    if (!sessionId) throw new Error("Session ID is required for image upload.");
+
     const formData = new FormData();
     formData.append("screenshot", screenshot);
     formData.append("webcam", webcamImage);
+    formData.append("sessionId", sessionId);
 
-    // Remove the 'Content-Type' header, as it's automatically set by Axios
-    const response = await axios.post(`${API_URL}/upload`, formData);
+    const config = {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    };
 
+    const response = await axios.post(
+      `${API_URL}/upload?currentSessionId=${sessionId}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
     return response.data;
   } catch (error) {
     console.error("Error uploading images:", error);
