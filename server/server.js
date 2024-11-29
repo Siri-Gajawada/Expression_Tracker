@@ -18,6 +18,8 @@ app.use(cors());
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
+const BASE_URL = process.env.BASE_URL;
+
 // User Profile Schema
 const userProfileSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -474,5 +476,5 @@ app.get("/analyze/:sessionId", async (req, res) => {
 
 // Start server
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on ${BASE_URL}`);
 });

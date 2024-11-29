@@ -2,7 +2,7 @@
 
 import axios from "axios";
 
-const API_URL = "http://localhost:5000";
+const API_URL = "https://expression-tracker-backend.vercel.app/";
 
 export const uploadImages = async (screenshot, webcamImage, sessionId) => {
   try {
