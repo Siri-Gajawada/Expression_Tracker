@@ -7,6 +7,7 @@ const StartGameButton = () => {
   const navigate = useNavigate();
 
   const handleStartGame = () => {
+    alert("The application is using your webcam to capture real-time expressions for analysis.")
     navigate("/game"); // Redirect to the game page
   };
 

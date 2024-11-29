@@ -1,3 +1,6 @@
+
+require('dotenv').config();
+
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
@@ -39,7 +42,7 @@ const UserProfile = mongoose.model("UserProfile", userProfileSchema);
 
 // MongoDB Connection
 mongoose
-  .connect("mongodb+srv://user1:user1@dravya01.ioeeo.mongodb.net/?retryWrites=true&w=majority&appName=Dravya01", {})
+  .connect(process.env.MONGODB_URI, {})
   .then(() => {
     console.log("Connected to MongoDB successfully");
     uploadDefaultProfiles();
@@ -47,6 +50,7 @@ mongoose
   .catch((err) => {
     console.error("MongoDB connection error:", err);
   });
+
 
 // Function to insert default profiles
 async function uploadDefaultProfiles() {
@@ -162,7 +166,7 @@ async function analyzeImage(imagePath, retryCount = 0, maxRetries = 5) {
       imageBuffer,
       {
         headers: {
-          Authorization: "Bearer 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",
+          Authorization: "Bearer ${process.env.API_KEY}",
           "Content-Type": "application/json",
         },
       }
