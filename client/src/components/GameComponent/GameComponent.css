@@ -1,0 +1,241 @@
+/* Remove default margin and padding for the entire document, 
+   and set the dimensions to cover the full viewport */
+   html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+  }
+  
+  /* Ensure root container and app take up the entire viewport */
+  #root, .app {
+    min-height: 100vh; /* Minimum height covers full viewport */
+    min-width: 100vw; /* Minimum width covers full viewport */
+    /* Background styling was commented out */
+    background: url("Game_background.jpg");
+    background-size: cover; /* Ensures the image covers the entire screen */
+    background-position: center; /* Centers the image */
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+    display: flex; /* Flexbox layout for alignment */
+    flex-direction: column; /* Stack children vertically */
+    align-items: center; /* Center children horizontally */
+    justify-content: center; /* Center children vertically */
+    position: fixed; /* Fix position relative to the viewport */
+    top: 0; /* Align to the top */
+    left: 0; /* Align to the left */
+    overflow-y: auto; /* Enable vertical scrolling if content overflows */
+  }
+  
+  /* Styling for the game title */
+  .game-title {
+    font-size: 3rem; /* Large font size */
+    color: #6b21a8; /* Purple text color */
+    margin-bottom: 5cm; /* Spacing below the title */
+  }
+  
+  /* Main game container styling */
+  .game-container {   
+    background: white; /* White background for contrast */
+    padding: 2rem; /* Space inside the container */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    width: 60%; /* Occupies 70% of the viewport width */
+    max-width: 650px; /* Restricts width to a maximum of 700px */
+    height: 560px; /* Fixed height for consistent layout */
+    display: flex; /* Flexbox layout */
+    flex-direction: column; /* Stack children vertically */
+    align-items: center; /* Center children horizontally */
+    justify-content: center; /* Center children vertically */
+    overflow: hidden; /* Prevent content from overflowing */
+    text-align: center; /* Center-align text within the container */
+    position:relative;
+  }
+  .game-container-h3{
+    font-size: 20px;/*Explicitly specifying the font size of h3*/
+  }
+  .score-container{
+    background: white; /* White background for contrast */
+    padding: 2rem; /* Space inside the container */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    width: 60%; /* Occupies 70% of the viewport width */
+    max-width: 650px; /* Restricts width to a maximum of 700px */
+    height: 300px; /* Fixed height for consistent layout */
+    display: flex; /* Flexbox layout */
+    flex-direction: column; /* Stack children vertically */
+    align-items: center; /* Center children horizontally */
+    justify-content: center; /* Center children vertically */
+    overflow: hidden; /* Prevent content from overflowing */
+    text-align: center; /* Center-align text within the container */
+    position:relative;
+  }
+  /* Grid layout for displaying shapes */
+  .shape-sequence {
+    display: grid; /* Enables grid layout */
+    grid-template-columns: repeat(3, 1fr); /* 3 equal-width columns */
+    grid-gap: 50px; /* Spacing between grid items */
+    justify-items: center; /* Center-align grid items horizontally */
+    margin: 10px 0 20px; /* Vertical spacing above and below the grid */
+    padding: 20px; /* Padding inside the grid */
+  }
+  
+  /* Styling for the target shape description */
+  .target-shape {
+    font-weight: bold; /* Bold font for emphasis */
+    color: #ec4899; /* Pink text color */
+  }
+  
+  /* Flexbox container for answer options */
+  .options-container {
+    display: flex; /* Enables flexbox layout */
+    justify-content: center; /* Center-align options horizontally */
+    margin-top: 20px; /* Spacing above the container */
+    gap: 40px; /* Space between buttons */
+    width: 100%; /* Full-width container */
+  }
+  
+  /* Base styling for option buttons */
+  .option-btn {
+    background: linear-gradient(to right, #8b5cf6, #ec4899); /* Gradient background */
+    color: white; /* White text color */
+    padding: 0.75rem 2rem; /* Padding inside the button */
+    font-size: 1.5rem; /* Large text size for readability */
+    border: none; /* No border */
+    border-radius: 9999px; /* Fully rounded corners (pill shape) */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: all 0.3s ease; /* Smooth transition for hover/active states */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    width: 80px;
+  }
+  
+  /* Button hover effect */
+  .option-btn:hover {
+    transform: scale(1.05); /* Slightly enlarge button */
+    box-shadow: 0 15px 20px -3px rgba(0, 0, 0, 0.2); /* Stronger shadow */
+  }
+  
+  /* Button active (pressed) effect */
+  .option-btn:active {
+    transform: scale(0.95); /* Slightly shrink button */
+  }
+  
+  /* Disabled button styling */
+  .option-btn:disabled {
+    opacity: 0.6; /* Reduce opacity to indicate inactivity */
+    cursor: not-allowed; /* Show not-allowed cursor */
+  }
+  
+  /* Styling for the result text */
+  .result {
+    font-size: 1.5rem; /* Medium font size */
+    color: #6b21a8; /* Purple text color */
+    margin-top: 20px; /* Spacing above the result */
+    text-align: center; /* Center-align result text */
+  }
+  
+  /* Styling for next and restart buttons */
+  .next-btn {   
+    background: linear-gradient(to right, #8b5cf6, #ec4899); /* Gradient background */
+    color: white; /* White text color */
+    padding: 0.75rem 2rem; /* Padding inside the button */
+    font-size: 1.5rem; /* Large text size */
+    border: none; /* No border */
+    border-radius: 9999px; /* Fully rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: all 0.3s ease; /* Smooth transition for hover/active states */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    margin-top: 0.5rem; /* Spacing above the button */
+    width: 80px; /* Automatically adjust button width */
+    align-self: center; /* Center-align button within parent */
+  }
+  .restart-btn{
+    background: linear-gradient(to right, #8b5cf6, #ec4899); /* Gradient background */
+    color: white; /* White text color */
+    padding: 0.75rem 2rem; /* Padding inside the button */
+    font-size: 1.5rem; /* Large text size */
+    border: none; /* No border */
+    border-radius: 9999px; /* Fully rounded corners */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: all 0.3s ease; /* Smooth transition for hover/active states */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    margin-top: 0.5rem; /* Spacing above the button */
+    width: 170px; /* Automatically adjust button width */
+    align-self: center; /* Center-align button within parent */
+  }
+  .next-btn-container {
+    display: flex; /* Enables alignment properties */
+    justify-content: flex-end; /* Aligns the button to the right */
+    align-items: center; /* Centers the button vertically */
+    width: 100%; /* Makes the container span the full width of the parent */
+    margin-top: 20px; /* Adds spacing from the content above */
+  }
+  
+  .next-btn {
+    position: absolute;
+    right: 20px; 
+    top: 45%;
+    /*transform: translateY(-50%);*/
+    background: linear-gradient(to right, #8b5cf6, #ec4899);
+    color: white;
+    padding: 0.75rem 2rem;
+    font-size: 1.5rem;
+    border: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    /*transition: all 0.3s ease;*/
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+  
+  
+  
+  /* Hover effect for next and restart buttons */
+  .next-btn:hover, .restart-btn:hover {
+    transform: scale(1.05); /* Slightly enlarge button */
+    box-shadow: 0 15px 20px -3px rgba(0, 0, 0, 0.2); /* Stronger shadow */
+  }
+  
+  
+  
+  /* Base styling for shapes */
+  .shape {
+    width: 80px; /* Fixed width */
+    height: 80px; /* Fixed height */
+    display: flex; /* Enables flexbox layout */
+    align-items: center; /* Center-align content vertically */
+    justify-content: center; /* Center-align content horizontally */
+    position: relative; /* Allows absolute positioning of children */
+  }
+  
+  /* Circle shape styling */
+  .circle {
+    border-radius: 50%; /* Fully rounded (circle) */
+    background-color: #1aa8a8; /* Cyan color */
+  }
+  
+  /* Square shape styling */
+  .square {
+    background-color: #8b5cf6; /* Purple color */
+  }
+  
+  /* Triangle shape styling */
+  .triangle {
+    width: 0; /* No width */
+    height: 0; /* No height */
+    border-left: 40px solid transparent; /* Left border for triangle */
+    border-right: 40px solid transparent; /* Right border for triangle */
+    border-bottom: 80px solid #ec4899; /* Bottom border forms triangle */
+  }
+  
+  /* Styling for smiley faces (if used as shapes) */
+  .smiley {
+    font-size: 2rem; /* Large font size for visibility */
+    position: absolute; /* Allows precise positioning */
+  }
+  
+  /* Keyframes for shake animation */
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); } /* Start and end in original position */
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); } /* Move left */
+    20%, 40%, 60%, 80% { transform: translateX(10px); } /* Move right */
+  }
+  

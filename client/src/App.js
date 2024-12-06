@@ -6,7 +6,7 @@ import GameComponent from "./components/GameComponent";
 import ImageCaptureComponent from "./components/ImageCaptureComponent";
 import LoginPage from "./components/LoginPage/LoginPage";
 import AdminApp from "./components/AdminApp/AdminApp";
-import StartGameButton from "./components/StartGameButton.jsx";
+import StartGameButton from "./components/StartGameButton/StartGameButton.jsx";
 
 function App() {
   return (
