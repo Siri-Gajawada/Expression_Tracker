@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import html2canvas from 'html2canvas';
-import { uploadImages } from '../services/api.js'; // Assuming your API utility
+import { uploadImages } from '../../services/api.js'; // Assuming your API utility
 
 const ImageCapture = ({ sessionId, isActive }) => {
   const [screenshot, setScreenshot] = useState(null);

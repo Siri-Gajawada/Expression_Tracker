@@ -2,11 +2,11 @@
 import React from "react";
 import "./App.css";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import GameComponent from "./components/GameComponent";
-import ImageCaptureComponent from "./components/ImageCaptureComponent";
+import GameComponent from "./components/GameComponent/GameComponent";
+import ImageCaptureComponent from "./components/ImageCapture/ImageCaptureComponent";
 import LoginPage from "./components/LoginPage/LoginPage";
 import AdminApp from "./components/AdminApp/AdminApp";
-import StartGameButton from "./components/StartGameButton/StartGameButton.jsx";
+import StartGameButton from "./components/StartGameButton/StartGameButton";
 
 function App() {
   return (
