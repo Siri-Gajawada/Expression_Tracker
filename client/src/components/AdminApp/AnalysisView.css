@@ -1,28 +1,16 @@
 /* General Styles */
 .admin-app-container {
   padding: 15px;
-  background-color: #f8f9fa;
   font-family: 'Arial', sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
-  transform: scale(0.85);
   transform-origin: center;
   width: 100%;
   overflow-y: hidden;
   position: relative;
-}
-
-.admin-app-container h1,
-.admin-app-container h2,
-.admin-app-container h3,
-.admin-app-container h4 {
-  font-size: 1.8rem;
-  color: #2c3e50;
-  margin-bottom: 15px;
-  text-align: center;
 }
 
 /* Layout for Content */
@@ -30,30 +18,34 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   width: 95%;
   max-width: 85%;
-  gap: 15px;
+  gap: 20px;
   margin-bottom: 20px;
   flex-grow: 1;
   padding: 0 2.5%;
+  margin-left: 25px;
 }
 
-/* Pie Chart Styles */
-.pie-chart-container {
-  flex: 0 0 35%;
-  padding: 54.3px;
+
+/* Bar Chart Styles */
+.bar-chart-container {
+  flex: 0 0 40%;
+  padding: 45px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: white;
+  background-color: white; /* Ensures the background is white */
   height: auto;
   min-height: 300px;
+  margin-top: 6px;
+  margin-left:-1px;
 }
 
-.pie-chart-container canvas {
+.bar-chart-container canvas {
   width: 100% !important;
   height: 100% !important;
   max-width: 100%;
@@ -62,14 +54,13 @@
 
 /* Table Styles */
 .table-container {
-  flex: 0 0 65%;
+  flex: 0 0 55%;
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
   max-height: 75vh;
   min-width: 400px;
-  
 }
 
 .analysis-table {
@@ -91,13 +82,8 @@
   font-weight: bold;
 }
 
-
-.analysis-table td:nth-child(1),
-.analysis-table td:nth-child(3) {
-  width: 25%;
-}
-.analysis-table td:nth-child(2) {
-  width: 30%;
+.analysis-table td {
+  width: 33.33%; /* Ensures equal width for all table columns */
 }
 
 .analysis-table tbody tr:hover {
@@ -153,7 +139,7 @@
   font-weight: 500;
   align-self: center;
   position: absolute;
-  bottom: 20px;
+  bottom: 50px;
   width: auto;
   text-align: center;
 }
@@ -222,7 +208,7 @@
     max-width: 100%;
   }
 
-  .pie-chart-container,
+  .bar-chart-container,
   .table-container {
     flex-basis: 100%;
   }

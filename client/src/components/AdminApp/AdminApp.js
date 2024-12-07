@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Pie } from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 import "chart.js/auto";
-import "./AdminApp.css";
+import "./SessionList.css";
+import "./AnalysisView.css";
 
 function AdminApp() {
   const [sessions, setSessions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false); // For session list
+  const [isAnalysisLoading, setIsAnalysisLoading] = useState(false); // For analysis loading
   const [selectedSession, setSelectedSession] = useState(null);
   const [analysisData, setAnalysisData] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     fetchSessions();
@@ -18,7 +20,7 @@ function AdminApp() {
     try {
       const response = await fetch("http://localhost:5000/api/sessions");
       if (!response.ok) {
-        throw new Error("Failed to fetch sessions");
+        throw new Error("Network response was not ok");
       }
       const data = await response.json();
       setSessions(data);
@@ -31,17 +33,27 @@ function AdminApp() {
 
   const handleSessionClick = async (sessionId) => {
     setSelectedSession(sessionId);
+    setIsAnalysisLoading(true);
     try {
       const response = await fetch(
         `http://localhost:5000/analyze/${sessionId}`
       );
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        if (response.status === 404) {
+          setAnalysisData({
+            imageAnalyses: [],
+            overallAnalysis: { emotions: {} },
+          });
+        } else {
+          throw new Error("Network response was not ok");
+        }
       }
       const data = await response.json();
       setAnalysisData(data);
     } catch (error) {
       console.error("Error analyzing session:", error);
+    } finally {
+      setIsAnalysisLoading(false);
     }
   };
 
@@ -50,74 +62,55 @@ function AdminApp() {
     setAnalysisData(null);
   };
 
-  const renderSessionList = () => (
-    <div style={{ width: "100%" }}>
-      <h3>Session List</h3>
+  const renderSessionsList = () => (
+    <div className="sessions-list-container">
+      <h2 className="admin-dashboard-h2">Admin Dashboard</h2>
+      <h3 className="session-list-h3">Session List 📋</h3>
       {isLoading ? (
         <p>Loading sessions...</p>
       ) : (
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ backgroundColor: "#f4f4f4" }}>
-              <th style={{ padding: "10px", border: "1px solid #ddd" }}>
-                Username
-              </th>
-              <th style={{ padding: "10px", border: "1px solid #ddd" }}>
-                Session ID
-              </th>
-              <th style={{ padding: "10px", border: "1px solid #ddd" }}>
-                Date & Time
-              </th>
-              <th style={{ padding: "10px", border: "1px solid #ddd" }}>
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {sessions.map((user) => (
-              <React.Fragment key={user.username}>
-                {user.sessions.map((session, index) => (
-                  <tr key={session.sessionId}>
-                    {index === 0 && (
-                      <td
-                        style={{ padding: "10px", border: "1px solid #ddd" }}
-                        rowSpan={user.sessions.length}
-                      >
-                        {user.username}
+        <div className="table-container1">
+          <table className="sessions-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Session ID</th>
+                <th>Date & Time</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sessions.map((user) => (
+                <React.Fragment key={user.username}>
+                  {user.sessions.map((session, index) => (
+                    <tr key={session.sessionId} className="session-row">
+                      {index === 0 && (
+                        <td rowSpan={user.sessions.length}>
+                          {user.username} 👤
+                        </td>
+                      )}
+                      <td>{session.sessionId}</td>
+                      <td>{new Date(session.createdAt).toLocaleString()}</td>
+                      <td>
+                        <button
+                          onClick={() => handleSessionClick(session.sessionId)}
+                          className="action-button"
+                        >
+                          Get Analysis
+                        </button>
                       </td>
-                    )}
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      {session.sessionId}
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      {new Date(session.createdAt).toLocaleString()}
-                    </td>
-                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                      <button
-                        onClick={() => handleSessionClick(session.sessionId)}
-                        style={{
-                          backgroundColor: "#4CAF50",
-                          color: "white",
-                          padding: "5px 10px",
-                          border: "none",
-                          borderRadius: "3px",
-                          cursor: "pointer",
-                        }}
-                      >
-                        Get Analysis
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
+                    </tr>
+                  ))}
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
 
-  const renderPieChart = () => {
+  const renderBarChart = () => {
     if (
       !analysisData ||
       !analysisData.overallAnalysis ||
@@ -144,16 +137,10 @@ function AdminApp() {
       ),
       datasets: [
         {
+          label: "Emotion Percentage",
           data: Object.values(emotions).map((v) => parseFloat(v)),
-          backgroundColor: [
-            "#FF6384",
-            "#36A2EB",
-            "#FFCE56",
-            "#4BC0C0",
-            "#9966FF",
-            "#FF9F40",
-            "#C9CBCF",
-          ],
+          backgroundColor: "#4BC0C0",
+          borderColor: "#36A2EB",
           borderWidth: 1,
         },
       ],
@@ -162,19 +149,34 @@ function AdminApp() {
     const options = {
       responsive: true,
       plugins: {
-        legend: {
-          position: "right",
-        },
-        title: {
-          display: true,
-        },
+        legend: { position: "top" },
+        title: { display: true, text: "Emotion Distribution" },
       },
+      scales: { y: { beginAtZero: true } },
     };
 
     return (
-      <div className="pie-chart-container">
-        <Pie data={data} options={options} />
+      <div className="bar-chart-container">
+        <Bar data={data} options={options} />
       </div>
+    );
+  };
+
+  const renderAnalysis = () => {
+    if (isAnalysisLoading) {
+      return (
+        <p className="isloading-container">Loading analysis, please wait...</p>
+      );
+    }
+
+    return (
+      <>
+        {renderBarChart()}
+        {renderTable()}
+        <button onClick={handleBackToSessions} className="back-to-sessions-btn">
+          ← Back to Sessions
+        </button>
+      </>
     );
   };
 
@@ -197,9 +199,6 @@ function AdminApp() {
                 <td>
                   <img
                     src={`http://localhost:5000/uploads/webcam_images/${selectedSession}/${analysis.imagePath}`}
-                    srcSet={`http://localhost:5000/uploads/webcam_images/${selectedSession}/small/${analysis.imagePath} 200w,
-                             http://localhost:5000/uploads/webcam_images/${selectedSession}/medium/${analysis.imagePath} 400w,
-                             http://localhost:5000/uploads/webcam_images/${selectedSession}/${analysis.imagePath} 800w`}
                     alt={`Webcam ${index}`}
                     className="webcam-image"
                     loading="lazy"
@@ -235,35 +234,10 @@ function AdminApp() {
   };
 
   return (
-    <div style={{ padding: "20px", maxHeight: "100vh", overflowY: "auto" }}>
-      <h2>Admin Dashboard</h2>
-
-      {selectedSession ? (
-        <div style={{ width: "100%" }}>
-          <h3>Analysis for Session: {selectedSession}</h3>
-          {renderPieChart()}
-          {renderTable()}
-          <button
-            onClick={handleBackToSessions}
-            style={{
-              backgroundColor: "#A2C2E2",
-              color: "#fff",
-              padding: "10px 15px",
-              border: "none",
-              borderRadius: "5px",
-              cursor: "pointer",
-              marginTop: "20px",
-              display: "block",
-              marginLeft: "auto",
-              marginRight: "auto",
-            }}
-          >
-            Back to Sessions
-          </button>
-        </div>
-      ) : (
-        renderSessionList()
-      )}
+    <div className="admin-app-container">
+      <div className="content-container">
+        {selectedSession ? renderAnalysis() : renderSessionsList()}
+      </div>
     </div>
   );
 }

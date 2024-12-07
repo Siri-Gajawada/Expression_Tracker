@@ -1,0 +1,121 @@
+.admin-app-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Align content to the top */
+    height: 100vh; /* Full screen height */
+    width: 100vw; /* Full screen width */
+    overflow: hidden; /* Prevent overall page scrolling */
+    background-image: url('admin_background.jpg'); /* Update with your actual image path */
+    background-size: cover; /* Ensure the background image covers the entire area */
+    background-position: center; /* Center the background image */
+    background-repeat: no-repeat; /* Prevent tiling of the background image */
+}
+
+h2, h3 {
+    font-size: 2.5rem; /* Decreased font size for better fit */
+    color: #2c3e50;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.table-container1 {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    width: 95%; /* Adjust width for better alignment */
+    margin: 20px auto;
+    max-height: 50vh; /* Limit the height of the table container */
+    overflow-y: auto; /* Enable scrolling for long tables */
+    transform: scale(1); /* Reset scale */
+}
+
+.sessions-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    overflow-x: auto; /* Allow horizontal scrolling if needed */
+}
+
+.sessions-table th,
+.sessions-table td {
+    padding: 12px 16px; /* Improved padding for readability */
+    border: 1px solid #ddd;
+    font-size: 1.1rem; /* Adjusted font size */
+}
+
+.sessions-table th {
+    background-color: #4b0082;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase; /* Uppercase headers for emphasis */
+}
+
+.sessions-table td {
+    color: #34495e;
+}
+
+.sessions-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.sessions-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.sessions-table button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
+}
+
+.sessions-table button:hover {
+    background-color: #0056b3;
+}
+
+
+.isloading-container{
+    color: white;
+    font-size: 30px;
+    text-align: center;
+    font-weight: bold;
+  }
+  
+.admin-dashboard-h2{
+    font-size: 40px;
+}
+
+.session-list-h3{
+    font-size: 30px;
+}
+
+@media screen and (max-width: 768px) {
+    h2, h3 {
+        font-size: 2rem; /* Adjusted for smaller screens */
+    }
+
+    .sessions-table th,
+    .sessions-table td {
+        padding: 10px 12px; /* Reduced padding for smaller screens */
+        font-size: 1rem; /* Adjust text size */
+    }
+
+    .table-container1 {
+        width: 100%;
+        margin: 10px;
+        max-height: 45vh; /* Adjusted table container height for mobile */
+    }
+
+    .sessions-table button {
+        font-size: 0.8em; /* Smaller buttons on mobile */
+        padding: 5px 10px;
+    }
+}
